@@ -2,6 +2,7 @@ import Fastify from 'fastify';
 import multipart from '@fastify/multipart';
 import envPlugin from './infrastructure/plugins/config/env';
 import prismaPlugin from './infrastructure/database/prisma';
+import repositoriesPlugin from './infrastructure/di/repositories';
 import useCasesPlugin from './infrastructure/di/use-cases';
 import validatorPlugin from './infrastructure/plugins/validators';
 import v1Routes from './interfaces/routes/v1';
@@ -23,9 +24,9 @@ export async function createApp() {
   await app.register(envPlugin);
   await app.register(prismaPlugin);
   await app.register(validatorPlugin);
+  await app.register(repositoriesPlugin);
   await app.register(useCasesPlugin);
   await app.register(multipart, {
-    attachFieldsToBody: true,
     limits: {
       fileSize: 8 * 1024 * 1024 * 50,
     },

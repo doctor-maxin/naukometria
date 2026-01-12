@@ -14,7 +14,6 @@ export class FileTypeValidator implements FileValidator {
 
   validateFileExtension(filename: string, allowedExtensions: string[]): boolean {
     const extension = filename.split('.').pop()?.toLowerCase();
-
     if (!extension) {
       return false;
     }
