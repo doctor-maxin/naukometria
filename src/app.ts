@@ -2,6 +2,8 @@ import Fastify from 'fastify';
 import multipart from '@fastify/multipart';
 import envPlugin from './infrastructure/plugins/config/env';
 import prismaPlugin from './infrastructure/database/prisma';
+import queuesPlugin from './infrastructure/plugins/queues';
+import eventBusPlugin from './infrastructure/plugins/event-bus';
 import repositoriesPlugin from './infrastructure/di/repositories';
 import useCasesPlugin from './infrastructure/di/use-cases';
 import validatorPlugin from './infrastructure/plugins/validators';
@@ -23,6 +25,8 @@ export async function createApp() {
 
   await app.register(envPlugin);
   await app.register(prismaPlugin);
+  await app.register(queuesPlugin);
+  await app.register(eventBusPlugin);
   await app.register(validatorPlugin);
   await app.register(repositoriesPlugin);
   await app.register(useCasesPlugin);

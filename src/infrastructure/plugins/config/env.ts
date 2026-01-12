@@ -18,6 +18,8 @@ declare module 'fastify' {
       PORT: number;
       NODE_ENV: string;
       DATABASE_URL: string;
+      REDIS_HOST: string;
+      REDIS_PORT: number;
     };
   }
 }

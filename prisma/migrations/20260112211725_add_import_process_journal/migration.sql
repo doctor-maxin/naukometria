@@ -3,7 +3,7 @@ CREATE TYPE "ImportStatus" AS ENUM ('PENDING', 'PROCESSING', 'COMPLETED', 'FAILE
 
 -- CreateTable
 CREATE TABLE "ImportProcess" (
-    "uuid" TEXT NOT NULL,
+    "uuid" UUID NOT NULL,
     "filename" TEXT NOT NULL,
     "status" "ImportStatus" NOT NULL DEFAULT 'PENDING',
     "filesPath" TEXT NOT NULL,
@@ -16,3 +16,17 @@ CREATE TABLE "ImportProcess" (
 
     CONSTRAINT "ImportProcess_pkey" PRIMARY KEY ("uuid")
 );
+
+-- CreateTable
+CREATE TABLE "ImportProcessJournal" (
+    "id" UUID NOT NULL,
+    "importProcessId" UUID NOT NULL,
+    "documentBody" TEXT,
+    "errorBody" TEXT,
+    "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "ImportProcessJournal_pkey" PRIMARY KEY ("id")
+);
+
+-- AddForeignKey
+ALTER TABLE "ImportProcessJournal" ADD CONSTRAINT "ImportProcessJournal_importProcessId_fkey" FOREIGN KEY ("importProcessId") REFERENCES "ImportProcess"("uuid") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -2,7 +2,7 @@ import { FastifyEnvOptions } from '@fastify/env';
 
 export const envSchema = {
   type: 'object',
-  required: ['PORT', 'DATABASE_URL'],
+  required: ['PORT', 'DATABASE_URL', 'REDIS_HOST', 'REDIS_PORT'],
   properties: {
     PORT: {
       type: 'number',
@@ -14,6 +14,14 @@ export const envSchema = {
     },
     DATABASE_URL: {
       type: 'string',
+    },
+    REDIS_HOST: {
+      type: 'string',
+      default: 'localhost',
+    },
+    REDIS_PORT: {
+      type: 'number',
+      default: 6379,
     },
   },
 } satisfies FastifyEnvOptions['schema'];

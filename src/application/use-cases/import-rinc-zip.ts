@@ -6,9 +6,10 @@ import AdmZip from 'adm-zip';
 import { createWriteStream, createReadStream } from 'fs';
 import { join } from 'path';
 import { pipeline } from 'stream/promises';
-import { ImportProcessRepository } from '@/infrastructure/repositories';
+import { IImportProcessRepository } from '@/domain/repositories';
 import { mkdir, unlink } from 'fs/promises';
-import { ImportProcess } from '@/generated/prisma/client';
+import { ImportProcess } from '@/domain/import-process';
+import { EventBus, ImportProcessStartedEvent } from '../events';
 
 export interface ImportRincZipInput {
   file: MultipartFile;
@@ -21,8 +22,9 @@ export interface ImportRincZipOutput {
 
 export class ImportRincZipUseCase {
   constructor(
-    private readonly importProcessRepository: ImportProcessRepository,
+    private readonly importProcessRepository: IImportProcessRepository,
     private readonly fileValidator: FileValidator,
+    private readonly eventBus: EventBus,
   ) {}
 
   async ensureDirExists(basePath: string) {
@@ -71,12 +73,30 @@ export class ImportRincZipUseCase {
 
     await unlink(zipPath);
 
-    // Create record
+    // Create ImportProcess entity
     const importProcess = await this.importProcessRepository.create({
       filename: input.file.filename,
-      status: 'PROCESSING',
+      status: 'PENDING',
       filesPath: extractDir,
     });
+
+    // Start the process
+    importProcess.start();
+    await this.importProcessRepository.save(importProcess.toPrisma());
+
+    // Publish event
+    try {
+      await this.eventBus.publish(
+        new ImportProcessStartedEvent({
+          importProcessId: importProcess.id,
+          filesPath: extractDir,
+          filename: input.file.filename,
+        }),
+      );
+    } catch (error) {
+      await this.importProcessRepository.markAsFailed(importProcess.id, 'Event publish failed');
+      throw error;
+    }
 
     return {
       message: 'File extracted successfully',

@@ -14,16 +14,26 @@ datasource db {
 }
 
 model ImportProcess {
-  uuid              String       @id @default(uuid()) @db.Uuid
+  uuid              String                 @id @default(uuid()) @db.Uuid
   filename          String
-  status            ImportStatus @default(PENDING)
+  status            ImportStatus           @default(PENDING)
   filesPath         String
-  totalArticles     Int          @default(0)
-  processedArticles Int          @default(0)
-  failedArticles    Int          @default(0)
+  totalArticles     Int                    @default(0)
+  processedArticles Int                    @default(0)
+  failedArticles    Int                    @default(0)
   errorMessage      String?
-  startedAt         DateTime     @default(now())
+  startedAt         DateTime               @default(now())
   completedAt       DateTime?
+  journal           ImportProcessJournal[]
+}
+
+model ImportProcessJournal {
+  id              String        @id @default(uuid()) @db.Uuid
+  importProcess   ImportProcess @relation(fields: [importProcessId], references: [uuid], onDelete: Cascade)
+  importProcessId String        @db.Uuid
+  documentBody    String?       @db.Text
+  errorBody       String?       @db.Text
+  timestamp       DateTime      @default(now())
 }
 
 enum ImportStatus {
