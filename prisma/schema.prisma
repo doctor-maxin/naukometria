@@ -14,7 +14,28 @@ datasource db {
 }
 
 model Article {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            Int             @id @default(autoincrement())
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  importProcess ImportProcess[]
+}
+
+model ImportProcess {
+  id               Int      @id @default(autoincrement())
+  filename         String
+  status           ImportStatus @default(PENDING)
+  totalArticles    Int      @default(0)
+  processedArticles Int      @default(0)
+  failedArticles   Int      @default(0)
+  errorMessage     String?
+  startedAt        DateTime @default(now())
+  completedAt      DateTime?
+  articles         Article[]
+}
+
+enum ImportStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
 }
