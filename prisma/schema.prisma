@@ -13,24 +13,17 @@ datasource db {
   provider = "postgresql"
 }
 
-model Article {
-  id            Int             @id @default(autoincrement())
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  importProcess ImportProcess[]
-}
-
 model ImportProcess {
-  id               Int      @id @default(autoincrement())
-  filename         String
-  status           ImportStatus @default(PENDING)
-  totalArticles    Int      @default(0)
-  processedArticles Int      @default(0)
-  failedArticles   Int      @default(0)
-  errorMessage     String?
-  startedAt        DateTime @default(now())
-  completedAt      DateTime?
-  articles         Article[]
+  uuid              String       @id @default(uuid()) @db.Uuid
+  filename          String
+  status            ImportStatus @default(PENDING)
+  filesPath         String
+  totalArticles     Int          @default(0)
+  processedArticles Int          @default(0)
+  failedArticles    Int          @default(0)
+  errorMessage      String?
+  startedAt         DateTime     @default(now())
+  completedAt       DateTime?
 }
 
 enum ImportStatus {

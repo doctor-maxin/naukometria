@@ -1,5 +1,5 @@
 import fp from 'fastify-plugin';
-import { ImportRincZipUseCase } from '../../application/import-rinc-zip';
+import { ImportRincZipUseCase } from '../../application/use-cases/import-rinc-zip';
 
 const useCasesPlugin = fp(async (app) => {
   const importRincZip = new ImportRincZipUseCase(app.repositories.importProcess, app.fileValidator);

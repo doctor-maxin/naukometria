@@ -1,8 +1,8 @@
+import { ImportProcessRepository } from '@/infrastructure/repositories';
 import fp from 'fastify-plugin';
-import { PrismaImportProcessRepository } from '../../repositories/import-process.prisma-repository';
 
 const repositoriesPlugin = fp(async (app) => {
-  const importProcessRepository = new PrismaImportProcessRepository(app.prisma);
+  const importProcessRepository = new ImportProcessRepository(app.prisma);
 
   app.decorate('repositories', {
     importProcess: importProcessRepository,
@@ -14,7 +14,7 @@ const repositoriesPlugin = fp(async (app) => {
 declare module 'fastify' {
   interface FastifyInstance {
     repositories: {
-      importProcess: PrismaImportProcessRepository;
+      importProcess: ImportProcessRepository;
     };
   }
 }

@@ -4,7 +4,8 @@ import { fileTypeFromStream } from 'file-type';
 
 export class FileTypeValidator implements FileValidator {
   async validateFileType(stream: Readable, allowedMimeTypes: string[]): Promise<boolean> {
-    const fileType = await fileTypeFromStream(stream);
+    const webStream = Readable.toWeb(stream);
+    const fileType = await fileTypeFromStream(webStream);
     if (!fileType) {
       return false;
     }

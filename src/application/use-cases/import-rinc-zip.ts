@@ -1,12 +1,14 @@
 import { FastifyBaseLogger } from 'fastify';
-import { ValidationError } from './errors';
+import { ValidationError } from '../errors';
 import { FileValidator } from '@/infrastructure/plugins/validators/interfaces';
-import { ImportProcessRepository } from './repositories/import-process.repository';
 import { MultipartFile } from '@fastify/multipart';
 import AdmZip from 'adm-zip';
-import { mkdirSync, unlinkSync, createWriteStream, createReadStream } from 'fs';
+import { createWriteStream, createReadStream } from 'fs';
 import { join } from 'path';
 import { pipeline } from 'stream/promises';
+import { ImportProcessRepository } from '@/infrastructure/repositories';
+import { mkdir, unlink } from 'fs/promises';
+import { ImportProcess } from '@/generated/prisma/client';
 
 export interface ImportRincZipInput {
   file: MultipartFile;
@@ -14,8 +16,7 @@ export interface ImportRincZipInput {
 
 export interface ImportRincZipOutput {
   message: string;
-  filename: string;
-  status: string;
+  data: ImportProcess;
 }
 
 export class ImportRincZipUseCase {
@@ -23,6 +24,14 @@ export class ImportRincZipUseCase {
     private readonly importProcessRepository: ImportProcessRepository,
     private readonly fileValidator: FileValidator,
   ) {}
+
+  async ensureDirExists(basePath: string) {
+    const tempDir = join(basePath, 'uploads', 'rinc', 'temp');
+    await mkdir(tempDir, {
+      recursive: true,
+    });
+    return tempDir;
+  }
 
   async execute(input: ImportRincZipInput, log: FastifyBaseLogger): Promise<ImportRincZipOutput> {
     const basePath = process.cwd();
@@ -33,8 +42,8 @@ export class ImportRincZipUseCase {
       throw new ValidationError('Only ZIP files are allowed');
     }
 
-    const tempDir = join(basePath, 'uploads', 'rinc', 'temp');
-    mkdirSync(tempDir, { recursive: true });
+    // Save tmp zip file
+    const tempDir = await this.ensureDirExists(basePath);
 
     const timestamp = Date.now().toString();
     const zipPath = join(tempDir, `${timestamp}.zip`);
@@ -42,28 +51,31 @@ export class ImportRincZipUseCase {
 
     await pipeline(fileStream, createWriteStream(zipPath));
 
+    // Validate real file type
     if (
       !(await this.fileValidator.validateFileType(createReadStream(zipPath), [
         'application/zip',
         'application/x-zip-compressed',
       ]))
     ) {
-      unlinkSync(zipPath);
+      await unlink(zipPath);
       throw new ValidationError('Invalid file type. Only ZIP files are allowed');
     }
 
-    const uploadDir = join(basePath, 'uploads', 'rinc', timestamp);
-    log.info(`Processing RINC ZIP import upload successfull`);
+    // Extract zip file and remove tmp file
+    const extractDir = join(basePath, 'uploads', 'rinc', timestamp);
 
     const zip = new AdmZip(zipPath);
-    zip.extractAllTo(uploadDir, true);
-    log.info(`Processing RINC ZIP import successfull`);
+    zip.extractAllTo(extractDir, true);
+    log.info(`RINC ZIP import extracted successfull`);
 
-    unlinkSync(zipPath);
+    await unlink(zipPath);
 
+    // Create record
     const importProcess = await this.importProcessRepository.create({
       filename: input.file.filename,
       status: 'PROCESSING',
+      filesPath: extractDir,
     });
 
     return {
