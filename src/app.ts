@@ -4,6 +4,7 @@ import envPlugin from './infrastructure/plugins/config/env';
 import prismaPlugin from './infrastructure/database/prisma';
 import queuesPlugin from './infrastructure/plugins/queues';
 import eventBusPlugin from './infrastructure/plugins/event-bus';
+import workersPlugin from './infrastructure/workers';
 import repositoriesPlugin from './infrastructure/di/repositories';
 import useCasesPlugin from './infrastructure/di/use-cases';
 import validatorPlugin from './infrastructure/plugins/validators';
@@ -30,6 +31,7 @@ export async function createApp() {
   await app.register(validatorPlugin);
   await app.register(repositoriesPlugin);
   await app.register(useCasesPlugin);
+  await app.register(workersPlugin);
   await app.register(multipart, {
     limits: {
       fileSize: 8 * 1024 * 1024 * 50,

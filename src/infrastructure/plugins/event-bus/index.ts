@@ -1,6 +1,6 @@
 import fp from 'fastify-plugin';
 import { BullMqEventBus } from './bullmq-event-bus';
-import { EventBus } from '@/domain/events';
+import { EventBus } from '@/application/events';
 
 const eventBusPlugin = fp(async (app) => {
   const eventBus = new BullMqEventBus(app.queues.importQueue);
