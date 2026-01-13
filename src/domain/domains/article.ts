@@ -1,4 +1,4 @@
-import { IItemContent } from '@/application/parsers/rinc-article-parser';
+import type { IItemContent } from '@/application/parsers/rinc-article-parser';
 
 export class Article {
   constructor(

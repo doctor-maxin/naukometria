@@ -1,5 +1,5 @@
-import { Publication } from '@/generated/prisma/client';
-import { FastifyRequest } from 'fastify';
+import type { Publication } from '@/generated/prisma/client';
+import type { FastifyRequest } from 'fastify';
 
 export interface IUpdatePublicationDto extends Omit<
   Publication,

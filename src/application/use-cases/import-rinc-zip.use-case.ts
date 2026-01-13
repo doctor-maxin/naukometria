@@ -1,14 +1,14 @@
-import { FastifyBaseLogger } from 'fastify';
+import type { FastifyBaseLogger } from 'fastify';
 import { ValidationError } from '../errors';
-import { FileValidator } from '@/infrastructure/plugins/validators/interfaces';
-import { MultipartFile } from '@fastify/multipart';
+import type { FileValidator } from '@/infrastructure/plugins/validators/interfaces';
+import type { MultipartFile } from '@fastify/multipart';
 import AdmZip from 'adm-zip';
 import { createWriteStream, createReadStream } from 'fs';
 import { join } from 'path';
 import { pipeline } from 'stream/promises';
-import { IImportProcessRepository } from '@/domain/repositories';
+import type { IImportProcessRepository } from '@/domain/repositories';
 import { mkdir, unlink } from 'fs/promises';
-import { EventBus, ImportProcessStartedEvent } from '../events';
+import { type EventBus, ImportProcessStartedEvent } from '../events';
 import { ImportProcess } from '@/domain/domains';
 
 export interface ImportRincZipInput {

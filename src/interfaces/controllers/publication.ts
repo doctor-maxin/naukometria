@@ -1,5 +1,5 @@
-import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { IUpdatePublicationDto } from '../dto/update-publication.request';
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import type { IUpdatePublicationDto } from '../dto/update-publication.request';
 
 export class PublicationController {
   constructor(private readonly app: FastifyInstance) {}

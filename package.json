@@ -1,10 +1,13 @@
 {
-  "name": "naukometria",
-  "module": "index.ts",
-  "type": "module",
+  "name": "scientometrics",
   "private": true,
+  "type": "commonjs",
   "scripts": {
-    "dev": "bun run --watch src/server.ts",
+    "build": "swc src --out-dir dist",
+    "build:watch": "swc -w src --out-dir dist",
+    "type-check": "tsc --noEmit",
+    "dev": "npm run build && node dist/src/server.js",
+    "clean": "rm -rf dist",
     "generate": "npx prisma generate --schema ./prisma/schema.prisma ",
     "migrate": "npx prisma migrate dev --schema ./prisma/schema.prisma",
     "deploy": "npx prisma migrate deploy --schema ./prisma/schema.prisma",
@@ -19,7 +22,7 @@
     "prisma": "^7.2.0"
   },
   "peerDependencies": {
-    "typescript": "^5"
+    "typescript": "^5.9.3"
   },
   "dependencies": {
     "@fastify/cors": "^11.2.0",
@@ -29,6 +32,9 @@
     "@fastify/static": "^9.0.0",
     "@prisma/adapter-pg": "^7.2.0",
     "@prisma/client": "^7.2.0",
+    "@swc/cli": "^0.7.9",
+    "@swc/core": "^1.15.8",
+    "@types/node": "^25.0.7",
     "adm-zip": "^0.5.16",
     "bullmq": "^5.66.5",
     "fastify": "^5.6.2",

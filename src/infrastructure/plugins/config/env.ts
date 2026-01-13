@@ -1,4 +1,4 @@
-import fastifyEnv, { FastifyEnvOptions } from '@fastify/env';
+import fastifyEnv, { type FastifyEnvOptions } from '@fastify/env';
 import fp from 'fastify-plugin';
 import { envSchema } from './env.schema';
 

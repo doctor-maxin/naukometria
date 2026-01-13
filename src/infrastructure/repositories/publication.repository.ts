@@ -1,10 +1,9 @@
 import { Publication } from '@/domain/domains';
-import { IPublicationRepository } from '@/domain/repositories';
+import type { IPublicationRepository } from '@/domain/repositories';
 import {
   PrismaClient,
-  Publication as PrismaPublication,
-  PublicationType,
-  RincArticle,
+  type Publication as PrismaPublication,
+  type RincArticle,
 } from '@/generated/prisma/client';
 
 export class PublicationRepository implements IPublicationRepository {

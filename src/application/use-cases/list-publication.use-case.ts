@@ -1,6 +1,6 @@
 import { Publication } from '@/domain/domains';
-import { IPublicationRepository } from '@/domain/repositories';
-import { FastifyBaseLogger } from 'fastify';
+import type { IPublicationRepository } from '@/domain/repositories';
+import type { FastifyBaseLogger } from 'fastify';
 
 interface IListInput {
   page: number;

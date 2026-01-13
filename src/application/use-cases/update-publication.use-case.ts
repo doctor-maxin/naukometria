@@ -1,7 +1,7 @@
 import { Publication } from '@/domain/domains';
-import { IPublicationRepository } from '@/domain/repositories';
-import { IUpdatePublicationDto } from '@/interfaces/dto/update-publication.request';
-import { FastifyBaseLogger } from 'fastify';
+import type { IPublicationRepository } from '@/domain/repositories';
+import type { IUpdatePublicationDto } from '@/interfaces/dto/update-publication.request';
+import type { FastifyBaseLogger } from 'fastify';
 import { NotFoundError } from '../errors';
 
 interface UpdatePublicationInput {

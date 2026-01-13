@@ -1,5 +1,5 @@
 import { Publication } from '@/domain/domains/publication';
-import {
+import type {
   IAuthorRepository,
   IImportProcessJournalRepository,
   IImportProcessRepository,
@@ -9,7 +9,7 @@ import {
 } from '@/domain/repositories';
 import { readdir, unlink } from 'fs/promises';
 import { join } from 'path';
-import { EventBus, ImportProcessCompletedEvent, ImportProcessFailedEvent } from '../events';
+import { type EventBus, ImportProcessCompletedEvent, ImportProcessFailedEvent } from '../events';
 import { RincArticleParser } from '../parsers/rinc-article-parser';
 
 export interface ProcessImportFilesInput {
@@ -86,7 +86,7 @@ export class ProcessImportFilesUseCase {
       );
 
       await this.importProcessRepository.markAsCompleted(input.importProcessId);
-      
+
       return {
         totalArticles: files.length,
         processedArticles: processedCount,

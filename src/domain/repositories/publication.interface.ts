@@ -1,4 +1,4 @@
-import { Publication as PrismaPublication, RincArticle } from '@/generated/prisma/client';
+import type { Publication as PrismaPublication, RincArticle } from '@/generated/prisma/client';
 import { Publication } from '../domains';
 
 export interface IPublicationRepository {

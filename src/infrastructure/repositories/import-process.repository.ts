@@ -1,9 +1,9 @@
 import {
-  ImportProcess as PrismaImportProcess,
+  type ImportProcess as PrismaImportProcess,
   PrismaClient,
   ImportStatus,
 } from '@/generated/prisma/client';
-import { IImportProcessRepository } from '@/domain/repositories';
+import type { IImportProcessRepository } from '@/domain/repositories';
 
 export class ImportProcessRepository implements IImportProcessRepository {
   constructor(private readonly prisma: PrismaClient) {}

@@ -1,4 +1,4 @@
-import { ImportProcess as PrismaImportProcess } from '@/generated/prisma/client';
+import type { ImportProcess as PrismaImportProcess } from '@/generated/prisma/client';
 import { ImportStatus } from '@/generated/prisma/enums';
 
 export interface IImportProcessRepository {

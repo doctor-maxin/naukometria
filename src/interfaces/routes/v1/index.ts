@@ -1,7 +1,6 @@
-import { FastifyPluginAsync } from 'fastify';
+import type { FastifyPluginAsync } from 'fastify';
 import { RincController } from '../../controllers/rinc';
 import { PublicationController } from '@/interfaces/controllers/publication';
-import { IUpdatePublicationRequest } from '@/interfaces/dto/update-publication.request';
 
 const v1Routes: FastifyPluginAsync = async (fastify) => {
   const rincController = new RincController(fastify);

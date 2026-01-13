@@ -6,7 +6,7 @@ import {
   OrganizationRepository,
   PublicationRepository,
 } from '@/infrastructure/repositories';
-import {
+import type {
   IAuthorRepository,
   IImportProcessJournalRepository,
   IImportProcessRepository,

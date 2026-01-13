@@ -1,4 +1,4 @@
-import { IOrganizationRepository } from '@/domain/repositories';
+import type { IOrganizationRepository } from '@/domain/repositories';
 import { PrismaClient } from '@/generated/prisma/client';
 
 export class OrganizationRepository implements IOrganizationRepository {

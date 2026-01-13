@@ -1,6 +1,6 @@
 import { Worker, Job } from 'bullmq';
 import IORedis from 'ioredis';
-import { ProcessImportFilesUseCase } from '@/application/use-cases/process-import-files';
+import { ProcessImportFilesUseCase } from '@/application/use-cases/process-import-files.use-case';
 
 export class ImportWorker {
   private worker: Worker;

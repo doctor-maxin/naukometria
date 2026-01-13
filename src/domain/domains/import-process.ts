@@ -1,4 +1,4 @@
-import { ImportProcess as PrismaImportProcess, ImportStatus } from '@/generated/prisma/client';
+import type { ImportProcess as PrismaImportProcess, ImportStatus } from '@/generated/prisma/client';
 
 export class ImportProcess {
   constructor(private prismaModel: PrismaImportProcess) {}

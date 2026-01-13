@@ -1,4 +1,4 @@
-import { IAuthorRepository } from '@/domain/repositories';
+import type { IAuthorRepository } from '@/domain/repositories';
 import { PrismaClient } from '@/generated/prisma/client';
 
 export class AuthorRepository implements IAuthorRepository {

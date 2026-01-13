@@ -1,4 +1,4 @@
-import { IJournalRepository } from '@/domain/repositories';
+import type { IJournalRepository } from '@/domain/repositories';
 import { PrismaClient } from '@/generated/prisma/client';
 
 export class JournalRepository implements IJournalRepository {

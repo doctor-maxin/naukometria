@@ -1,7 +1,7 @@
 import { PublicationType } from '@/generated/prisma/enums';
-import { Publication as PrismaPublication } from '@/generated/prisma/client';
+import type { Publication as PrismaPublication } from '@/generated/prisma/client';
 import { Article } from '@/domain/domains/article';
-import { IUpdatePublicationDto } from '@/interfaces/dto/update-publication.request';
+import type { IUpdatePublicationDto } from '@/interfaces/dto/update-publication.request';
 
 interface DeterminePublicationTypeInput {
   typeCode?: string | null;
