@@ -1,6 +1,13 @@
+import { Publication } from '@/domain/domains/publication';
+import {
+  IAuthorRepository,
+  IImportProcessRepository,
+  IJournalRepository,
+  IOrganizationRepository,
+  IPublicationRepository,
+} from '@/domain/repositories';
 import { readdir } from 'fs/promises';
 import { join } from 'path';
-import { IImportProcessRepository } from '@/domain/repositories';
 import { EventBus, ImportProcessCompletedEvent, ImportProcessFailedEvent } from '../events';
 import { RincArticleParser } from '../parsers/rinc-article-parser';
 
@@ -20,6 +27,10 @@ export class ProcessImportFilesUseCase {
     private readonly importProcessRepository: IImportProcessRepository,
     private readonly eventBus: EventBus,
     private readonly articleParser: RincArticleParser,
+    private readonly publicationRepository: IPublicationRepository,
+    private readonly authorRepository: IAuthorRepository,
+    private readonly organizationRepository: IOrganizationRepository,
+    private readonly journalRepository: IJournalRepository,
   ) {}
 
   async execute(input: ProcessImportFilesInput): Promise<ProcessImportFilesOutput> {
@@ -39,7 +50,7 @@ export class ProcessImportFilesUseCase {
       for (const filePath of files) {
         try {
           // TODO: Parse and import article
-          await this.processFile(filePath);
+          await this.processFile(filePath, input.importProcessId);
 
           processedCount++;
 
@@ -123,12 +134,51 @@ export class ProcessImportFilesUseCase {
     }
   }
 
-  private async processFile(filePath: string): Promise<void> {
+  private async processFile(filePath: string, processImportUuid: string): Promise<void> {
     // Parse article from JSON
     const article = await this.articleParser.parse(filePath);
 
-    // TODO: Import article to database
-    console.log(`Parsed article: ${article.getTitleRu()}, authors: ${article.getAuthorsList()}`);
-    console.log(`DOI: ${article.doi}, UDK: ${article.udk}`);
+    // Create publication from article (type is automatically determined)
+    const publication = Publication.createFromArticle(article);
+
+    // Step 1: Process authors
+    for (const author of article.authors) {
+      if (!author.id) continue;
+
+      const existingAuthor = await this.authorRepository.findByRincId(author.id.toString());
+
+      if (!existingAuthor) continue;
+
+      publication.addAuthor(existingAuthor.uuid);
+
+      for (const orgId of author.orgIds ?? []) {
+        const existingOrg = await this.organizationRepository.findByRincId(orgId.toString());
+
+        if (!existingOrg) continue;
+
+        publication.addOrganization(existingOrg.uuid);
+      }
+    }
+
+    if (article.data.journal) {
+      let existingJournal = await this.journalRepository.findByRincId(
+        article.data.journal.titleId.toString(),
+      );
+
+      if (!existingJournal) {
+        existingJournal = await this.journalRepository.findByIssn(article.data.journal.issn);
+      }
+
+      if (existingJournal) publication.addJournal(existingJournal.uuid);
+    }
+
+    const publicationRecord = await this.publicationRepository.upsertPublication(publication);
+    await this.publicationRepository.createRincArticle(
+      publicationRecord.uuid,
+      processImportUuid,
+      article.data,
+    );
+
+    console.log(`Processed article: ${article.getTitleRu()}`);
   }
 }

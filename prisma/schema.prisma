@@ -17,22 +17,22 @@ model ImportProcess {
   uuid              String                 @id @default(uuid()) @db.Uuid
   filename          String
   status            ImportStatus           @default(PENDING)
-  filesPath         String
-  totalArticles     Int                    @default(0)
-  processedArticles Int                    @default(0)
-  failedArticles    Int                    @default(0)
-  errorMessage      String?
-  startedAt         DateTime               @default(now())
-  completedAt       DateTime?
+  filesPath         String                 @map("files_path")
+  totalArticles     Int                    @default(0) @map("total_articles")
+  processedArticles Int                    @default(0) @map("processed_articles")
+  failedArticles    Int                    @default(0) @map("failed_articles")
+  errorMessage      String?                @map("error_message")
+  startedAt         DateTime               @default(now()) @map("started_at")
+  completedAt       DateTime?              @map("completed_at")
   journal           ImportProcessJournal[]
 }
 
 model ImportProcessJournal {
-  id              String        @id @default(uuid()) @db.Uuid
+  uuid            String        @id @default(uuid()) @db.Uuid
   importProcess   ImportProcess @relation(fields: [importProcessId], references: [uuid], onDelete: Cascade)
-  importProcessId String        @db.Uuid
-  documentBody    String?       @db.Text
-  errorBody       String?       @db.Text
+  importProcessId String        @map("import_process_id") @db.Uuid
+  documentBody    String?       @map("document_body") @db.Text
+  errorBody       String?       @map("error_body") @db.Text
   timestamp       DateTime      @default(now())
 }
 
@@ -43,261 +43,281 @@ enum ImportStatus {
   FAILED
 }
 
-model Organization {
-  is_deleted                      Boolean
-  ts_created                      DateTime @default(now())
-  updated_at                      DateTime @updatedAt
-  title                           String
-  full_title                      String
-  title_en                        String
-  title_native_lang               String
-  uuid_local_church               String?
-  uuid_diocese                    String?
-  links                           Json?
-  offsite_link                    String?
-  uchkom_site_link                String?
-  uchkom_rating_link              String?
-  uuid_attachment                 String?
-  slug                            String   @unique
-  system_id                       String
-  alt_title                       String?
-  rating                          Float?
-  previous_rating                 Float?
-  rating_num                      Float?
-  uuid_image_preview              String?
-  uuid_voc_organization_type      String?
-  uuid_voc_education_inst_type    String?
-  uuid_voc_education_level        String?
-  uuid_voc_confession             String?
-  ogrn                            String?
-  inn                             String?
-  kpp                             String?
-  rinc                            String?
-  establishment_year              Int?
-  uuid_voc_country                String?
-  uuid_voc_federal_district       String?
-  uuid_voc_region                 String?
-  postcode                        Int?
-  uuid_voc_city                   String?
-  address                         String?
-  office_phone                    String?
-  office_fax                      String?
-  office_email                    String?
-  director_office_phone           String?
-  director_office_fax             String?
-  director_office_email           String?
-  rector_office_email             String?
-  admission_office_email          String?
-  is_church_accreditation         Boolean
-  is_government_accreditation     Boolean
-  uuid_voc_jurisdiction           String?
-  uuid_voc_subordination          String?
-  uuid_voc_theological_department String?
-  uuid_voc_diploma_type           String?
-  uuid_voc_diploma_classification String?
-  admission                       String?
-  short_description               String?
-  education_duration              Float?
-  uuid_voc_education_format       String?
-  is_right_to_priesthood          Boolean
-  uuid_head_person                String?
-  head_phone                      String?
-  head_email                      String?
-  head_link                       String?
-  main_description                String?
-  additional_description          String?
-  is_active                       Boolean  @default(false)
-  is_display_on_landing           Boolean  @default(true)
-  total_views                     Int      @default(0)
+enum PublicationType {
+  SCIENTIFIC_ARTICLE
+  LITERATURE_REVIEW
+  BOOK_REVIEW
+  BIOGRAPHICAL_MATERIAL
+  TRANSLATION
+  EDITORIAL_MATERIAL
+  RETRACTION_NOTICE
+  NOTE
+  NOTICE
+  REQUIRES_MANUAL_CLASSIFICATION
+}
 
-  old_id               Int?
-  old_start            DateTime?
-  old_finish           DateTime?
-  old_is_important     Boolean?
-  old_annotation       String?
-  old_text             String?
-  old_status           String?
-  old_comments_form    Boolean?
-  old_topics           Json?
-  old_confessions      Json?
-  old_genres           Json?
-  old_keywords         Json?
-  old_geography        Json?
-  old_publication_time DateTime?
-  old_main_language    Int?
-  old_language         Int?
-  old_translated_from  Int?
-  old_small_image      Int?
-  old_head_image       Int?
-  old_head_image2      Int?
-  old_img_comment      String?
-  old_numchar          Int?
+model Organization {
+  isDeleted                    Boolean  @map("is_deleted")
+  tsCreated                    DateTime @default(now()) @map("ts_created")
+  updatedAt                    DateTime @updatedAt @map("updated_at")
+  title                        String   @map("title")
+  fullTitle                    String   @map("full_title")
+  titleEn                      String   @map("title_en")
+  titleNativeLang              String   @map("title_native_lang")
+  uuidLocalChurch              String?  @map("uuid_local_church")
+  uuidDiocese                  String?  @map("uuid_diocese")
+  links                        Json?    @map("links")
+  offsiteLink                  String?  @map("offsite_link")
+  uchkomSiteLink               String?  @map("uchkom_site_link")
+  uchkomRatingLink             String?  @map("uchkom_rating_link")
+  uuidAttachment               String?  @map("uuid_attachment")
+  slug                         String   @unique @map("slug")
+  systemId                     String   @map("system_id")
+  altTitle                     String?  @map("alt_title")
+  rating                       Float?   @map("rating")
+  previousRating               Float?   @map("previous_rating")
+  ratingNum                    Float?   @map("rating_num")
+  uuidImagePreview             String?  @map("uuid_image_preview")
+  uuidVocOrganizationType      String?  @map("uuid_voc_organization_type")
+  uuidVocEducationInstType     String?  @map("uuid_voc_education_inst_type")
+  uuidVocEducationLevel        String?  @map("uuid_voc_education_level")
+  uuidVocConfession            String?  @map("uuid_voc_confession")
+  ogrn                         String?  @map("ogrn")
+  inn                          String?  @map("inn")
+  kpp                          String?  @map("kpp")
+  rinc                         String?  @map("rinc")
+  establishmentYear            Int?     @map("establishment_year")
+  uuidVocCountry               String?  @map("uuid_voc_country")
+  uuidVocFederalDistrict       String?  @map("uuid_voc_federal_district")
+  uuidVocRegion                String?  @map("uuid_voc_region")
+  postcode                     Int?     @map("postcode")
+  uuidVocCity                  String?  @map("uuid_voc_city")
+  address                      String?  @map("address")
+  officePhone                  String?  @map("office_phone")
+  officeFax                    String?  @map("office_fax")
+  officeEmail                  String?  @map("office_email")
+  directorOfficePhone          String?  @map("director_office_phone")
+  directorOfficeFax            String?  @map("director_office_fax")
+  directorOfficeEmail          String?  @map("director_office_email")
+  rectorOfficeEmail            String?  @map("rector_office_email")
+  admissionOfficeEmail         String?  @map("admission_office_email")
+  isChurchAccreditation        Boolean  @map("is_church_accreditation")
+  isGovernmentAccreditation    Boolean  @map("is_government_accreditation")
+  uuidVocJurisdiction          String?  @map("uuid_voc_jurisdiction")
+  uuidVocSubordination         String?  @map("uuid_voc_subordination")
+  uuidVocTheologicalDepartment String?  @map("uuid_voc_theological_department")
+  uuidVocDiplomaType           String?  @map("uuid_voc_diploma_type")
+  uuidVocDiplomaClassification String?  @map("uuid_voc_diploma_classification")
+  admission                    String?  @map("admission")
+  shortDescription             String?  @map("short_description")
+  educationDuration            Float?   @map("education_duration")
+  uuidVocEducationFormat       String?  @map("uuid_voc_education_format")
+  isRightToPriesthood          Boolean  @map("is_right_to_priesthood")
+  uuidHeadPerson               String?  @map("uuid_head_person")
+  headPhone                    String?  @map("head_phone")
+  headEmail                    String?  @map("head_email")
+  headLink                     String?  @map("head_link")
+  mainDescription              String?  @map("main_description")
+  additionalDescription        String?  @map("additional_description")
+  isActive                     Boolean  @default(false) @map("is_active")
+  isDisplayOnLanding           Boolean  @default(true) @map("is_display_on_landing")
+  totalViews                   Int      @default(0) @map("total_views")
+
+  oldId              Int?      @map("old_id")
+  oldStart           DateTime? @map("old_start")
+  oldFinish          DateTime? @map("old_finish")
+  oldIsImportant     Boolean?  @map("old_is_important")
+  oldAnnotation      String?   @map("old_annotation")
+  oldText            String?   @map("old_text")
+  oldStatus          String?   @map("old_status")
+  oldCommentsForm    Boolean?  @map("old_comments_form")
+  oldTopics          Json?     @map("old_topics")
+  oldConfessions     Json?     @map("old_confessions")
+  oldGenres          Json?     @map("old_genres")
+  oldKeywords        Json?     @map("old_keywords")
+  oldGeography       Json?     @map("old_geography")
+  oldPublicationTime DateTime? @map("old_publication_time")
+  oldMainLanguage    Int?      @map("old_main_language")
+  oldLanguage        Int?      @map("old_language")
+  oldTranslatedFrom  Int?      @map("old_translated_from")
+  oldSmallImage      Int?      @map("old_small_image")
+  oldHeadImage       Int?      @map("old_head_image")
+  oldHeadImage2      Int?      @map("old_head_image2")
+  oldImgComment      String?   @map("old_img_comment")
+  oldNumchar         Int?      @map("old_numchar")
+
+  @@map("organizations")
 }
 
 model Publication {
-  uuid           String        @id @default(uuid()) @db.Uuid
-  rincId         Int?          @unique
-  doi            String?       @unique
-  edn            String?       @unique
-  titles         Json
-  authors        Json
-  year           Int
-  journalTitle   String
-  issn           String?
-  volume         String?
-  issue          String?
-  pages          String?
-  abstracts      Json
-  keywords       Json
-  rubric         String?
-  udk            String?
-  // Нуксометрические показатели
-  cited          Int           @default(0)
-  coreCited      Int           @default(0)
-  risc           Int           @default(0)
-  coreRISC       Int           @default(0)
-  vak            Boolean       @default(false)
-  vakCategory    Int?
-  whiteList      Boolean       @default(false)
-  whiteListLevel Int           @default(0)
-  jcrQuartile    Int           @default(0)
-  sjrQuartile    Int           @default(0)
-  scopus         Boolean       @default(false)
-  wos            Boolean       @default(false)
-  rsci           Boolean       @default(false)
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  rincArticles   RincArticle[]
+  uuid   String  @id @default(uuid()) @db.Uuid
+  rincId String? @map("rinc_id")
+
+  type          PublicationType
+  isManuallySet Boolean         @default(false) @map("is_manually_set")
+
+  title           String
+  authors         String[]
+  organizations   String[]
+  publishingHouse String?   @map("publishing_house")
+  journalIssue    String?   @map("journal_issue")
+  pages           String?
+  publicationYear DateTime? @map("publication_year")
+  citations       String?
+  language        String?
+  doi             String?
+  edn             String?
+  keywords        String?
+  description     String?
+  bibliography    String[]
+  fundingSource   String?   @map("funding_source")
+  sourceLink      String?   @map("source_link")
+  textLink        String?   @map("text_link")
+  attachmentUuid  String?   @map("attachment_uuid")
+  totalCitations  Int?      @map("total_citations")
+  rubrics         String[]
+  isFullText      Boolean?  @map("is_full_text")
+  isNew           Boolean?  @map("is_new")
+  isActive        Boolean   @default(true) @map("is_active")
+
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  rincArticles RincArticle[]
+
+  @@map("publications")
 }
 
 model RincArticle {
-  id              String      @id @default(uuid()) @db.Uuid
-  publicationUuid String      @db.Uuid
-  publication     Publication @relation(fields: [publicationUuid], references: [uuid], onDelete: Cascade)
-  rawData         Json // Исходные данные JSON из РИНЦ
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  id                String      @id @default(uuid()) @db.Uuid
+  publicationUuid   String      @map("publication_uuid") @db.Uuid
+  processImportUuid String      @map("process_import_uuid") @db.Uuid
+  publication       Publication @relation(fields: [publicationUuid], references: [uuid], onDelete: Cascade)
+  rawData           Json        @map("raw_data") // Исходные данные JSON из РИНЦ
+  createdAt         DateTime    @default(now()) @map("created_at")
+  updatedAt         DateTime    @updatedAt @map("updated_at")
 }
 
 model Author {
-  last_name                     String
-  last_name_from                String?
-  first_name                    String?
-  middle_name                   String?
-  alt_name                      String?
-  lat_name                      String?
-  monastic_name                 String?
-  label                         String?
-  is_holy_rank                  Boolean   @default(false)
-  uuid_voc_hierarchical_degrees String?
-  orcid_id                      String?
-  rinc                          String?
-  spin_elib_id                  Int?
-  total_materials_elib          Int?
-  total_quotes_elib             Int?
-  h_index_elib                  Int?
-  uuid_academic_title           String?
-  uuid_image_preview            String?
-  uuid_voc_confession           String?
-  uuid_diocese                  String?
-  links                         Json?
-  uuid_photo                    String?
-  is_deleted                    Boolean   @default(false)
-  ts_created                    DateTime  @default(now())
-  uuid_user                     String?
-  description                   String?
-  main_description              String?
-  extra_description             String?
-  anons                         String?
-  birthday                      DateTime?
-  deathdate                     DateTime?
-  uuid_voc_country              String?
-  external_id                   String
-  updated_at                    DateTime  @updatedAt
-  is_active                     Boolean   @default(true)
-  is_before_bc                  Boolean   @default(false)
-  is_not_exact_birth            Boolean   @default(false)
-  is_super                      Boolean   @default(false)
-  is_on_list_page_banner        Boolean   @default(true)
+  lastName                   String    @map("last_name")
+  lastNameFrom               String?   @map("last_name_from")
+  firstName                  String?   @map("first_name")
+  middleName                 String?   @map("middle_name")
+  altName                    String?   @map("alt_name")
+  latName                    String?   @map("lat_name")
+  monasticName               String?   @map("monastic_name")
+  label                      String?   @map("label")
+  isHolyRank                 Boolean   @default(false) @map("is_holy_rank")
+  uuidVocHierarchicalDegrees String?   @map("uuid_voc_hierarchical_degrees")
+  orcidId                    String?   @map("orcid_id")
+  rinc                       String?   @map("rinc")
+  spinElibId                 Int?      @map("spin_elib_id")
+  totalMaterialsElib         Int?      @map("total_materials_elib")
+  totalQuotesElib            Int?      @map("total_quotes_elib")
+  hIndexElib                 Int?      @map("h_index_elib")
+  uuidAcademicTitle          String?   @map("uuid_academic_title")
+  uuidImagePreview           String?   @map("uuid_image_preview")
+  uuidVocConfession          String?   @map("uuid_voc_confession")
+  uuidDiocese                String?   @map("uuid_diocese")
+  links                      Json?     @map("links")
+  uuidPhoto                  String?   @map("uuid_photo")
+  isDeleted                  Boolean   @default(false) @map("is_deleted")
+  tsCreated                  DateTime  @default(now()) @map("ts_created")
+  uuidUser                   String?   @map("uuid_user")
+  description                String?   @map("description")
+  mainDescription            String?   @map("main_description")
+  extraDescription           String?   @map("extra_description")
+  anons                      String?   @map("anons")
+  birthday                   DateTime? @map("birthday")
+  deathdate                  DateTime? @map("deathdate")
+  uuidVocCountry             String?   @map("uuid_voc_country")
+  externalId                 String    @map("external_id")
+  updatedAt                  DateTime  @updatedAt @map("updated_at")
+  isActive                   Boolean   @default(true) @map("is_active")
+  isBeforeBc                 Boolean   @default(false) @map("is_before_bc")
+  isNotExactBirth            Boolean   @default(false) @map("is_not_exact_birth")
+  isSuper                    Boolean   @default(false) @map("is_super")
+  isOnListPageBanner         Boolean   @default(true) @map("is_on_list_page_banner")
 
-  tab_jobs                 Boolean @default(false)
-  tab_scientific_interests Boolean @default(false)
-  tab_education            Boolean @default(false)
-  tab_dissertations        Boolean @default(false)
-  tab_awards               Boolean @default(false)
+  tabJobs                Boolean @default(false) @map("tab_jobs")
+  tabScientificInterests Boolean @default(false) @map("tab_scientific_interests")
+  tabEducation           Boolean @default(false) @map("tab_education")
+  tabDissertations       Boolean @default(false) @map("tab_dissertations")
+  tabAwards              Boolean @default(false) @map("tab_awards")
 
-  scientific_interests_text String?
+  scientificInterestsText String? @map("scientific_interests_text")
 
-  slug        String @unique
-  total_views Int    @default(0)
+  slug       String @unique @map("slug")
+  totalViews Int    @default(0) @map("total_views")
 
-  old_id                        Int?
-  old_status                    String?
-  old_title                     String?
-  old_image                     Int?
-  old_small_image               Int?
-  old_head_image                Int?
-  old_head_image2               Int?
-  old_img_comment               String?
-  old_numchar                   Int?
-  old_prof_interests            Json?
-  old_academic_ranks            Json?
-  old_academic_ranks_text       String?
-  old_awards                    String?
-  old_bibliography_about        String?
-  old_bibliography_of           String?
-  old_bibliography_of_orig      String?
-  old_contacts                  String?
-  old_employment_text           String?
-  old_name_org_lang             String?
-  old_name_rus                  String?
-  old_scientific_interests_text String?
-  old_source_text               String?
-  old_start                     DateTime?
-  old_finish                    DateTime?
-  old_is_personalia             Boolean?
-  old_keywords                  Json?
-  old_geography                 Json?
-  old_publication_time          DateTime?
-  old_main_language             Int?
-  old_language                  Int?
-  old_translated_from           Int?
+  oldId                      Int?      @map("old_id")
+  oldStatus                  String?   @map("old_status")
+  oldTitle                   String?   @map("old_title")
+  oldImage                   Int?      @map("old_image")
+  oldSmallImage              Int?      @map("old_small_image")
+  oldHeadImage               Int?      @map("old_head_image")
+  oldHeadImage2              Int?      @map("old_head_image2")
+  oldImgComment              String?   @map("old_img_comment")
+  oldNumchar                 Int?      @map("old_numchar")
+  oldProfInterests           Json?     @map("old_prof_interests")
+  oldAcademicRanks           Json?     @map("old_academic_ranks")
+  oldAcademicRanksText       String?   @map("old_academic_ranks_text")
+  oldAwards                  String?   @map("old_awards")
+  oldBibliographyAbout       String?   @map("old_bibliography_about")
+  oldBibliographyOf          String?   @map("old_bibliography_of")
+  oldBibliographyOfOrig      String?   @map("old_bibliography_of_orig")
+  oldContacts                String?   @map("old_contacts")
+  oldEmploymentText          String?   @map("old_employment_text")
+  oldNameOrgLang             String?   @map("old_name_org_lang")
+  oldNameRus                 String?   @map("old_name_rus")
+  oldScientificInterestsText String?   @map("old_scientific_interests_text")
+  oldSourceText              String?   @map("old_source_text")
+  oldStart                   DateTime? @map("old_start")
+  oldFinish                  DateTime? @map("old_finish")
+  oldIsPersonalia            Boolean?  @map("old_is_personalia")
+  oldKeywords                Json?     @map("old_keywords")
+  oldGeography               Json?     @map("old_geography")
+  oldPublicationTime         DateTime? @map("old_publication_time")
+  oldMainLanguage            Int?      @map("old_main_language")
+  oldLanguage                Int?      @map("old_language")
+  oldTranslatedFrom          Int?      @map("old_translated_from")
 
-  uuid_person_draft String?
+  uuidPersonDraft String? @map("uuid_person_draft")
 
   @@map("persons")
 }
 
 model Journal {
-  is_deleted                    Boolean  @default(false)
-  ts_created                    DateTime @default(now())
-  title_main                    String
-  title_extra                   String?
-  title_old                     String?
-  title_short                   String?
-  issn                          String?
-  issn_l                        String?
-  e_issn                        String?
-  elibrary_id                   String?
-  scopus_id                     String?
-  is_general_church_recommended Boolean  @default(false)
-  since_year_index              Int?
-  establishment_year            Int?
-  closing_year                  Int?
-  publishing_country            String?
-  publishing_language           String?
-  uuid_image_preview            String?
-  slug                          String   @unique
-  doi                           String?
-  description                   String?
-  total_issues                  Int?
-  site_url                      String?
-  rinc_url                      String?
-  oecd                          Json?
-  is_active                     Boolean  @default(false)
-  rinc                          String?
-  uuid_voc_country              String?
-  publishing_start_year         String?
-  publishing_end_year           String?
-  is_default                    Boolean  @default(false)
+  isDeleted                  Boolean  @default(false) @map("is_deleted")
+  tsCreated                  DateTime @default(now()) @map("ts_created")
+  titleMain                  String   @map("title_main")
+  titleExtra                 String?  @map("title_extra")
+  titleOld                   String?  @map("title_old")
+  titleShort                 String?  @map("title_short")
+  issn                       String?  @map("issn")
+  issnL                      String?  @map("issn_l")
+  eIssn                      String?  @map("e_issn")
+  elibraryId                 String?  @map("elibrary_id")
+  scopusId                   String?  @map("scopus_id")
+  isGeneralChurchRecommended Boolean  @default(false) @map("is_general_church_recommended")
+  sinceYearIndex             Int?     @map("since_year_index")
+  establishmentYear          Int?     @map("establishment_year")
+  closingYear                Int?     @map("closing_year")
+  publishingCountry          String?  @map("publishing_country")
+  publishingLanguage         String?  @map("publishing_language")
+  uuidImagePreview           String?  @map("uuid_image_preview")
+  slug                       String   @unique @map("slug")
+  doi                        String?  @map("doi")
+  description                String?  @map("description")
+  totalIssues                Int?     @map("total_issues")
+  siteUrl                    String?  @map("site_url")
+  rincUrl                    String?  @map("rinc_url")
+  oecd                       Json?    @map("oecd")
+  isActive                   Boolean  @default(false) @map("is_active")
+  rinc                       String?  @map("rinc")
+  uuidVocCountry             String?  @map("uuid_voc_country")
+  publishingStartYear        String?  @map("publishing_start_year")
+  publishingEndYear          String?  @map("publishing_end_year")
+  isDefault                  Boolean  @default(false) @map("is_default")
+
+  @@map("journals")
 }

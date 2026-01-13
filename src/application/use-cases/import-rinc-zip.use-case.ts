@@ -8,8 +8,8 @@ import { join } from 'path';
 import { pipeline } from 'stream/promises';
 import { IImportProcessRepository } from '@/domain/repositories';
 import { mkdir, unlink } from 'fs/promises';
-import { ImportProcess } from '@/domain/import-process';
 import { EventBus, ImportProcessStartedEvent } from '../events';
+import { ImportProcess } from '@/domain/domains';
 
 export interface ImportRincZipInput {
   file: MultipartFile;

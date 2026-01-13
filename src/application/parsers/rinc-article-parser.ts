@@ -1,5 +1,5 @@
 import { readFile } from 'fs/promises';
-import { Article, Author, ArticleTitle, ArticleAbstract, ArticleKeyword } from '@/domain/article';
+import { Article } from '@/domain/domains/article';
 
 export class RincArticleParser {
   async parse(filePath: string): Promise<Article> {
@@ -10,54 +10,14 @@ export class RincArticleParser {
       throw new Error(`Invalid RINC JSON format in ${filePath}`);
     }
 
-    const data = json.response;
-
-    // Parse titles
-    const titles: ArticleTitle[] = (data.titles || []).map((t: any) => ({
-      lang: t.lang || '',
-      value: t.value || '',
-    }));
-
-    // Parse authors
-    const authors: Author[] = (data.authors || []).map((a: any) => ({
-      id: a.authorId || 0,
-      lastName: a.names?.[0]?.lastName || '',
-      initials: a.names?.[0]?.initials || '',
-      orgNames: (a.orgs || []).map((o: any) => o.names?.[0]?.orgName || ''),
-    }));
-
-    // Parse abstracts
-    const abstracts: ArticleAbstract[] = (data.abstracts || []).map((a: any) => ({
-      lang: a.lang || '',
-      value: a.value || '',
-    }));
-
-    // Parse keywords
-    const keywords: ArticleKeyword[] = (data.keywords || []).map((k: any) => ({
-      lang: k.lang || '',
-      value: k.value || '',
-    }));
+    const data = json.response as IItemContent;
 
     // Extract DOI from codes
     const doi = data.codes?.find((c: any) => c.type === 'DOI')?.value;
     const udk = data.codes?.find((c: any) => c.type === 'УДК')?.value;
+    const edn = data.codes?.find((c: any) => c.type === 'EDN')?.value;
 
-    return new Article(
-      data.itemId || 0,
-      titles,
-      authors,
-      data.year || new Date().getFullYear(),
-      data.journal?.fullName || '',
-      data.journal?.issn || '',
-      data.volumeNumber || '',
-      data.issueNumber || '',
-      data.pages || '',
-      abstracts,
-      keywords,
-      doi,
-      udk,
-      data.mainRubric?.name || '',
-    );
+    return new Article(data.itemId, data, doi, udk, edn);
   }
 
   isValidJson(content: string): boolean {
@@ -68,4 +28,104 @@ export class RincArticleParser {
       return false;
     }
   }
+}
+
+export interface IItemContent {
+  itemId: number;
+  code: string;
+  genreId: number;
+  typeCode: string;
+  lang: string;
+  parentId: number;
+  mainRubric: {
+    rubricCode: number;
+    name: string;
+  };
+  oecdCode: number;
+  cited: number;
+  coreCited: number;
+  risc: number;
+  coreRISC: number;
+  isNew: number;
+  isFT: number;
+  authors: {
+    number: number;
+    status: string;
+    authorId: number;
+    names: {
+      lang: string;
+      lastName: string;
+      initials: string;
+    }[];
+    orgs: {
+      number: number;
+      orgId: number;
+      names: {
+        lang: string;
+        orgName: string;
+      }[];
+    }[];
+  }[];
+  titles: {
+    lang: string;
+    value: string;
+  }[];
+  year: number;
+  volumeNumber: string;
+  issueNumber: string;
+  issueContNumber: string;
+  seriesNumber: string;
+  seriesName: string;
+  reEdition: string;
+  pages: string;
+  pagesNumber: number;
+  journal: {
+    titleId: number;
+    fullName: string;
+    countryId: string;
+    town: string;
+    issn: string;
+    eissn: string;
+    activeFromYear: number | null;
+    activeToYear: number | null;
+    homeUrl: string | null;
+    publisher: {
+      orgId: number;
+      names: {
+        lang: string;
+        orgName: string;
+      }[];
+    };
+    rubrics: string[];
+    vak: number;
+    vakCateg: number;
+    whiteList: number;
+    whiteListLevel: number;
+    jcrQuartile: number;
+    sjrQuartile: number;
+    scopus: number;
+    wos: number;
+    risc: number;
+    rsci: number;
+    numofItems: number;
+  };
+  publisher: null;
+  support: {}[];
+  abstracts: {
+    lang: string;
+    value: string;
+  }[];
+  keywords: {
+    lang: string;
+    value: string;
+  }[];
+  codes: {
+    type: string;
+    value: string;
+  }[];
+  url: string;
+  dateInstall: string;
+  dateReceived: string;
+  retracted: number;
+  forСitation: string;
 }
