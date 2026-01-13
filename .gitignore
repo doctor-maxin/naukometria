@@ -23,5 +23,5 @@ lerna-debug.log*
 .temp
 .tmp
 bun.lock
-/src/generated/prisma
+/src/generated
 /uploads

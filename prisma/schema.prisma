@@ -43,6 +43,97 @@ enum ImportStatus {
   FAILED
 }
 
+model Organization {
+  is_deleted                      Boolean
+  ts_created                      DateTime @default(now())
+  updated_at                      DateTime @updatedAt
+  title                           String
+  full_title                      String
+  title_en                        String
+  title_native_lang               String
+  uuid_local_church               String?
+  uuid_diocese                    String?
+  links                           Json?
+  offsite_link                    String?
+  uchkom_site_link                String?
+  uchkom_rating_link              String?
+  uuid_attachment                 String?
+  slug                            String   @unique
+  system_id                       String
+  alt_title                       String?
+  rating                          Float?
+  previous_rating                 Float?
+  rating_num                      Float?
+  uuid_image_preview              String?
+  uuid_voc_organization_type      String?
+  uuid_voc_education_inst_type    String?
+  uuid_voc_education_level        String?
+  uuid_voc_confession             String?
+  ogrn                            String?
+  inn                             String?
+  kpp                             String?
+  rinc                            String?
+  establishment_year              Int?
+  uuid_voc_country                String?
+  uuid_voc_federal_district       String?
+  uuid_voc_region                 String?
+  postcode                        Int?
+  uuid_voc_city                   String?
+  address                         String?
+  office_phone                    String?
+  office_fax                      String?
+  office_email                    String?
+  director_office_phone           String?
+  director_office_fax             String?
+  director_office_email           String?
+  rector_office_email             String?
+  admission_office_email          String?
+  is_church_accreditation         Boolean
+  is_government_accreditation     Boolean
+  uuid_voc_jurisdiction           String?
+  uuid_voc_subordination          String?
+  uuid_voc_theological_department String?
+  uuid_voc_diploma_type           String?
+  uuid_voc_diploma_classification String?
+  admission                       String?
+  short_description               String?
+  education_duration              Float?
+  uuid_voc_education_format       String?
+  is_right_to_priesthood          Boolean
+  uuid_head_person                String?
+  head_phone                      String?
+  head_email                      String?
+  head_link                       String?
+  main_description                String?
+  additional_description          String?
+  is_active                       Boolean  @default(false)
+  is_display_on_landing           Boolean  @default(true)
+  total_views                     Int      @default(0)
+
+  old_id               Int?
+  old_start            DateTime?
+  old_finish           DateTime?
+  old_is_important     Boolean?
+  old_annotation       String?
+  old_text             String?
+  old_status           String?
+  old_comments_form    Boolean?
+  old_topics           Json?
+  old_confessions      Json?
+  old_genres           Json?
+  old_keywords         Json?
+  old_geography        Json?
+  old_publication_time DateTime?
+  old_main_language    Int?
+  old_language         Int?
+  old_translated_from  Int?
+  old_small_image      Int?
+  old_head_image       Int?
+  old_head_image2      Int?
+  old_img_comment      String?
+  old_numchar          Int?
+}
+
 model Publication {
   uuid           String        @id @default(uuid()) @db.Uuid
   rincId         Int?          @unique
@@ -86,4 +177,127 @@ model RincArticle {
   rawData         Json // Исходные данные JSON из РИНЦ
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
+}
+
+model Author {
+  last_name                     String
+  last_name_from                String?
+  first_name                    String?
+  middle_name                   String?
+  alt_name                      String?
+  lat_name                      String?
+  monastic_name                 String?
+  label                         String?
+  is_holy_rank                  Boolean   @default(false)
+  uuid_voc_hierarchical_degrees String?
+  orcid_id                      String?
+  rinc                          String?
+  spin_elib_id                  Int?
+  total_materials_elib          Int?
+  total_quotes_elib             Int?
+  h_index_elib                  Int?
+  uuid_academic_title           String?
+  uuid_image_preview            String?
+  uuid_voc_confession           String?
+  uuid_diocese                  String?
+  links                         Json?
+  uuid_photo                    String?
+  is_deleted                    Boolean   @default(false)
+  ts_created                    DateTime  @default(now())
+  uuid_user                     String?
+  description                   String?
+  main_description              String?
+  extra_description             String?
+  anons                         String?
+  birthday                      DateTime?
+  deathdate                     DateTime?
+  uuid_voc_country              String?
+  external_id                   String
+  updated_at                    DateTime  @updatedAt
+  is_active                     Boolean   @default(true)
+  is_before_bc                  Boolean   @default(false)
+  is_not_exact_birth            Boolean   @default(false)
+  is_super                      Boolean   @default(false)
+  is_on_list_page_banner        Boolean   @default(true)
+
+  tab_jobs                 Boolean @default(false)
+  tab_scientific_interests Boolean @default(false)
+  tab_education            Boolean @default(false)
+  tab_dissertations        Boolean @default(false)
+  tab_awards               Boolean @default(false)
+
+  scientific_interests_text String?
+
+  slug        String @unique
+  total_views Int    @default(0)
+
+  old_id                        Int?
+  old_status                    String?
+  old_title                     String?
+  old_image                     Int?
+  old_small_image               Int?
+  old_head_image                Int?
+  old_head_image2               Int?
+  old_img_comment               String?
+  old_numchar                   Int?
+  old_prof_interests            Json?
+  old_academic_ranks            Json?
+  old_academic_ranks_text       String?
+  old_awards                    String?
+  old_bibliography_about        String?
+  old_bibliography_of           String?
+  old_bibliography_of_orig      String?
+  old_contacts                  String?
+  old_employment_text           String?
+  old_name_org_lang             String?
+  old_name_rus                  String?
+  old_scientific_interests_text String?
+  old_source_text               String?
+  old_start                     DateTime?
+  old_finish                    DateTime?
+  old_is_personalia             Boolean?
+  old_keywords                  Json?
+  old_geography                 Json?
+  old_publication_time          DateTime?
+  old_main_language             Int?
+  old_language                  Int?
+  old_translated_from           Int?
+
+  uuid_person_draft String?
+
+  @@map("persons")
+}
+
+model Journal {
+  is_deleted                    Boolean  @default(false)
+  ts_created                    DateTime @default(now())
+  title_main                    String
+  title_extra                   String?
+  title_old                     String?
+  title_short                   String?
+  issn                          String?
+  issn_l                        String?
+  e_issn                        String?
+  elibrary_id                   String?
+  scopus_id                     String?
+  is_general_church_recommended Boolean  @default(false)
+  since_year_index              Int?
+  establishment_year            Int?
+  closing_year                  Int?
+  publishing_country            String?
+  publishing_language           String?
+  uuid_image_preview            String?
+  slug                          String   @unique
+  doi                           String?
+  description                   String?
+  total_issues                  Int?
+  site_url                      String?
+  rinc_url                      String?
+  oecd                          Json?
+  is_active                     Boolean  @default(false)
+  rinc                          String?
+  uuid_voc_country              String?
+  publishing_start_year         String?
+  publishing_end_year           String?
+  is_default                    Boolean  @default(false)
 }
