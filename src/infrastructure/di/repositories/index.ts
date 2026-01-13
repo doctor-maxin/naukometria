@@ -1,5 +1,6 @@
 import {
   AuthorRepository,
+  ImportProcessJournalRepository,
   ImportProcessRepository,
   JournalRepository,
   OrganizationRepository,
@@ -7,6 +8,7 @@ import {
 } from '@/infrastructure/repositories';
 import {
   IAuthorRepository,
+  IImportProcessJournalRepository,
   IImportProcessRepository,
   IJournalRepository,
   IOrganizationRepository,
@@ -20,6 +22,7 @@ const repositoriesPlugin = fp(async (app) => {
   const authorRepository = new AuthorRepository(app.prisma);
   const organizationRepository = new OrganizationRepository(app.prisma);
   const journalRepository = new JournalRepository(app.prisma);
+  const importProcessJournalRepository = new ImportProcessJournalRepository(app.prisma);
 
   app.decorate('repositories', {
     importProcess: importProcessRepository as IImportProcessRepository,
@@ -27,6 +30,7 @@ const repositoriesPlugin = fp(async (app) => {
     author: authorRepository,
     organization: organizationRepository,
     journal: journalRepository,
+    importProcessJournal: importProcessJournalRepository,
   });
 
   app.log.info('Repositories successfuly registered');
@@ -40,6 +44,7 @@ declare module 'fastify' {
       author: IAuthorRepository;
       organization: IOrganizationRepository;
       journal: IJournalRepository;
+      importProcessJournal: IImportProcessJournalRepository;
     };
   }
 }

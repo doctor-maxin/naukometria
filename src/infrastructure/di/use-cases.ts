@@ -16,6 +16,7 @@ const useCasesPlugin = fp(async (app) => {
 
   const processImportFiles = new ProcessImportFilesUseCase(
     app.repositories.importProcess,
+    app.repositories.importProcessJournal,
     app.eventBus,
     new RincArticleParser(),
     app.repositories.publication,

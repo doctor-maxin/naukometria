@@ -1,12 +1,13 @@
 import { Publication } from '@/domain/domains/publication';
 import {
   IAuthorRepository,
+  IImportProcessJournalRepository,
   IImportProcessRepository,
   IJournalRepository,
   IOrganizationRepository,
   IPublicationRepository,
 } from '@/domain/repositories';
-import { readdir } from 'fs/promises';
+import { readdir, unlink } from 'fs/promises';
 import { join } from 'path';
 import { EventBus, ImportProcessCompletedEvent, ImportProcessFailedEvent } from '../events';
 import { RincArticleParser } from '../parsers/rinc-article-parser';
@@ -25,6 +26,7 @@ export interface ProcessImportFilesOutput {
 export class ProcessImportFilesUseCase {
   constructor(
     private readonly importProcessRepository: IImportProcessRepository,
+    private readonly importProcessJournalRepository: IImportProcessJournalRepository,
     private readonly eventBus: EventBus,
     private readonly articleParser: RincArticleParser,
     private readonly publicationRepository: IPublicationRepository,
@@ -62,6 +64,11 @@ export class ProcessImportFilesUseCase {
           console.error(`Failed to process file ${filePath}:`, error);
           failedCount++;
 
+          await this.importProcessJournalRepository.logEvent({
+            importProcessId: input.importProcessId,
+            errorBody: error instanceof Error ? error.message : String(error),
+          });
+
           await this.importProcessRepository.updateProgress(input.importProcessId, {
             failedArticles: failedCount,
           });
@@ -79,7 +86,7 @@ export class ProcessImportFilesUseCase {
       );
 
       await this.importProcessRepository.markAsCompleted(input.importProcessId);
-
+      
       return {
         totalArticles: files.length,
         processedArticles: processedCount,
@@ -135,50 +142,60 @@ export class ProcessImportFilesUseCase {
   }
 
   private async processFile(filePath: string, processImportUuid: string): Promise<void> {
-    // Parse article from JSON
-    const article = await this.articleParser.parse(filePath);
+    try {
+      // Parse article from JSON
+      const article = await this.articleParser.parse(filePath);
 
-    // Create publication from article (type is automatically determined)
-    const publication = Publication.createFromArticle(article);
+      // Create publication from article (type is automatically determined)
+      const publication = Publication.createFromArticle(article);
 
-    // Step 1: Process authors
-    for (const author of article.authors) {
-      if (!author.id) continue;
+      // Step 1: Process authors
+      for (const author of article.authors) {
+        if (!author.id) continue;
 
-      const existingAuthor = await this.authorRepository.findByRincId(author.id.toString());
+        const existingAuthor = await this.authorRepository.findByRincId(author.id.toString());
 
-      if (!existingAuthor) continue;
+        if (!existingAuthor) continue;
 
-      publication.addAuthor(existingAuthor.uuid);
+        publication.addAuthor(existingAuthor.uuid);
 
-      for (const orgId of author.orgIds ?? []) {
-        const existingOrg = await this.organizationRepository.findByRincId(orgId.toString());
+        for (const orgId of author.orgIds ?? []) {
+          const existingOrg = await this.organizationRepository.findByRincId(orgId.toString());
 
-        if (!existingOrg) continue;
+          if (!existingOrg) continue;
 
-        publication.addOrganization(existingOrg.uuid);
+          publication.addOrganization(existingOrg.uuid);
+        }
       }
-    }
 
-    if (article.data.journal) {
-      let existingJournal = await this.journalRepository.findByRincId(
-        article.data.journal.titleId.toString(),
+      if (article.data.journal) {
+        let existingJournal = await this.journalRepository.findByRincId(
+          article.data.journal.titleId.toString(),
+        );
+
+        if (!existingJournal) {
+          existingJournal = await this.journalRepository.findByIssn(article.data.journal.issn);
+        }
+
+        if (existingJournal) publication.addJournal(existingJournal.uuid);
+      }
+
+      const publicationRecord = await this.publicationRepository.upsertPublication(publication);
+      await this.publicationRepository.createRincArticle(
+        publicationRecord.uuid,
+        processImportUuid,
+        article.data,
       );
 
-      if (!existingJournal) {
-        existingJournal = await this.journalRepository.findByIssn(article.data.journal.issn);
-      }
+      console.log(`Processed article: ${article.getTitleRu()}`);
+    } catch (error) {
+      // Log error to import process journal
+      await this.importProcessJournalRepository.logEvent({
+        importProcessId: processImportUuid,
+        errorBody: error instanceof Error ? error.message : String(error),
+      });
 
-      if (existingJournal) publication.addJournal(existingJournal.uuid);
+      throw error;
     }
-
-    const publicationRecord = await this.publicationRepository.upsertPublication(publication);
-    await this.publicationRepository.createRincArticle(
-      publicationRecord.uuid,
-      processImportUuid,
-      article.data,
-    );
-
-    console.log(`Processed article: ${article.getTitleRu()}`);
   }
 }
