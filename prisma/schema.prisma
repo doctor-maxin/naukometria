@@ -42,3 +42,48 @@ enum ImportStatus {
   COMPLETED
   FAILED
 }
+
+model Publication {
+  uuid           String        @id @default(uuid()) @db.Uuid
+  rincId         Int?          @unique
+  doi            String?       @unique
+  edn            String?       @unique
+  titles         Json
+  authors        Json
+  year           Int
+  journalTitle   String
+  issn           String?
+  volume         String?
+  issue          String?
+  pages          String?
+  abstracts      Json
+  keywords       Json
+  rubric         String?
+  udk            String?
+  // Нуксометрические показатели
+  cited          Int           @default(0)
+  coreCited      Int           @default(0)
+  risc           Int           @default(0)
+  coreRISC       Int           @default(0)
+  vak            Boolean       @default(false)
+  vakCategory    Int?
+  whiteList      Boolean       @default(false)
+  whiteListLevel Int           @default(0)
+  jcrQuartile    Int           @default(0)
+  sjrQuartile    Int           @default(0)
+  scopus         Boolean       @default(false)
+  wos            Boolean       @default(false)
+  rsci           Boolean       @default(false)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  rincArticles   RincArticle[]
+}
+
+model RincArticle {
+  id              String      @id @default(uuid()) @db.Uuid
+  publicationUuid String      @db.Uuid
+  publication     Publication @relation(fields: [publicationUuid], references: [uuid], onDelete: Cascade)
+  rawData         Json // Исходные данные JSON из РИНЦ
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}

@@ -74,11 +74,12 @@ export class ImportRincZipUseCase {
     await unlink(zipPath);
 
     // Create ImportProcess entity
-    const importProcess = await this.importProcessRepository.create({
+    const importProcessRecord = await this.importProcessRepository.create({
       filename: input.file.filename,
       status: 'PENDING',
       filesPath: extractDir,
     });
+    const importProcess = new ImportProcess(importProcessRecord);
 
     // Start the process
     importProcess.start();

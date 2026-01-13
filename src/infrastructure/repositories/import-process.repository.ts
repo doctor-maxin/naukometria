@@ -79,4 +79,10 @@ export class ImportProcessRepository implements IImportProcessRepository {
       },
     });
   }
+
+  async findById(uuid: string): Promise<PrismaImportProcess | null> {
+    return await this.prisma.importProcess.findUnique({
+      where: { uuid },
+    });
+  }
 }
