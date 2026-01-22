@@ -11,6 +11,7 @@ import { readdir, unlink } from 'fs/promises';
 import { join } from 'path';
 import { type EventBus, ImportProcessCompletedEvent, ImportProcessFailedEvent } from '../events';
 import { RincArticleParser } from '../parsers/rinc-article-parser';
+import { FastifyBaseLogger } from 'fastify';
 
 export interface ProcessImportFilesInput {
   importProcessId: string;
@@ -33,13 +34,13 @@ export class ProcessImportFilesUseCase {
     private readonly authorRepository: IAuthorRepository,
     private readonly organizationRepository: IOrganizationRepository,
     private readonly journalRepository: IJournalRepository,
+    private readonly logger: FastifyBaseLogger,
   ) {}
 
   async execute(input: ProcessImportFilesInput): Promise<ProcessImportFilesOutput> {
     try {
       // Read files from directory
       const files = await this.readFiles(input.filesPath);
-      console.log(input, files);
       // Update total articles
       await this.importProcessRepository.updateProgress(input.importProcessId, {
         totalArticles: files.length,
@@ -61,7 +62,7 @@ export class ProcessImportFilesUseCase {
             failedArticles: failedCount,
           });
         } catch (error) {
-          console.error(`Failed to process file ${filePath}:`, error);
+          this.logger.error(error, `Failed to process file ${filePath}:`);
           failedCount++;
 
           await this.importProcessJournalRepository.logEvent({
@@ -94,7 +95,7 @@ export class ProcessImportFilesUseCase {
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-
+      this.logger.error(error);
       await this.eventBus.publish(
         new ImportProcessFailedEvent({
           importProcessId: input.importProcessId,
@@ -136,7 +137,7 @@ export class ProcessImportFilesUseCase {
 
       return files;
     } catch (error) {
-      console.error('Error reading Items directory:', error);
+      this.logger.error(error, 'Error reading Items directory:');
       return [];
     }
   }
@@ -187,13 +188,14 @@ export class ProcessImportFilesUseCase {
         article.data,
       );
 
-      console.log(`Processed article: ${article.getTitleRu()}`);
+      this.logger.info(`Processed article: ${article.getTitleRu()}`);
     } catch (error) {
       // Log error to import process journal
       await this.importProcessJournalRepository.logEvent({
         importProcessId: processImportUuid,
         errorBody: error instanceof Error ? error.message : String(error),
       });
+      this.logger.error(error);
 
       throw error;
     }

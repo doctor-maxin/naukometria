@@ -1,3 +1,4 @@
+import { IItemContent } from '@/application/parsers/rinc-article-parser';
 import { Publication } from '@/domain/domains';
 import type { IPublicationRepository } from '@/domain/repositories';
 import {
@@ -5,6 +6,7 @@ import {
   type Publication as PrismaPublication,
   type RincArticle,
 } from '@/generated/prisma/client';
+import { InputJsonValue } from '@prisma/client/runtime/client';
 
 export class PublicationRepository implements IPublicationRepository {
   constructor(private readonly prisma: PrismaClient) {}
@@ -57,32 +59,8 @@ export class PublicationRepository implements IPublicationRepository {
     const existing = await this.findByAny(publication.rincId, publication.doi, publication.edn);
 
     const publicationData = {
-      rincId: publication.rincId,
-      doi: publication.doi,
-      edn: publication.edn,
-      type: publication.type,
-      isManuallySet: publication.isManuallySet,
-      title: publication.title,
-      authors: publication.authors,
-      organizations: publication.organizations,
-      publishingHouse: publication.publishingHouse,
-      journalIssue: publication.journalIssue,
-      pages: publication.pages,
-      publicationYear: publication.publicationYear,
-      citations: publication.citations,
-      language: publication.language,
-      keywords: publication.keywords,
-      description: publication.description,
-      bibliography: publication.bibliography,
-      fundingSource: publication.fundingSource,
-      sourceLink: publication.sourceLink,
-      textLink: publication.textLink,
-      attachmentUuid: publication.attachmentUuid,
-      totalCitations: publication.totalCitations,
-      rubrics: publication.rubrics,
-      isFullText: publication.isFullText,
+      ...publication.toObject(),
       isNew: existing ? false : publication.isNew, // Только для новых
-      isActive: publication.isActive,
       updatedAt: new Date(),
     };
 
@@ -104,42 +82,14 @@ export class PublicationRepository implements IPublicationRepository {
   public async save(publication: Publication): Promise<PrismaPublication> {
     return this.prisma.publication.update({
       where: { uuid: publication.uuid },
-      data: {
-        rincId: publication.rincId,
-        doi: publication.doi,
-        edn: publication.edn,
-        type: publication.type,
-        isManuallySet: publication.isManuallySet,
-        title: publication.title,
-        authors: publication.authors,
-        organizations: publication.organizations,
-        publishingHouse: publication.publishingHouse,
-        journalIssue: publication.journalIssue,
-        pages: publication.pages,
-        publicationYear: publication.publicationYear,
-        citations: publication.citations,
-        language: publication.language,
-        keywords: publication.keywords,
-        description: publication.description,
-        bibliography: publication.bibliography,
-        fundingSource: publication.fundingSource,
-        sourceLink: publication.sourceLink,
-        textLink: publication.textLink,
-        attachmentUuid: publication.attachmentUuid,
-        totalCitations: publication.totalCitations,
-        rubrics: publication.rubrics,
-        isFullText: publication.isFullText,
-        isNew: publication.isNew,
-        isActive: publication.isActive,
-        updatedAt: new Date(),
-      },
+      data: publication,
     });
   }
 
   public createRincArticle(
     publicationUuid: string,
     processImportUuid: string,
-    rawData: any,
+    rawData: IItemContent,
   ): Promise<RincArticle> {
     return this.prisma.rincArticle.create({
       data: {
@@ -147,7 +97,7 @@ export class PublicationRepository implements IPublicationRepository {
           connect: { uuid: publicationUuid },
         },
         processImportUuid,
-        rawData,
+        rawData: rawData as InputJsonValue,
       },
     });
   }

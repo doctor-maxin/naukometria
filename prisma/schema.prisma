@@ -57,6 +57,7 @@ enum PublicationType {
 }
 
 model Organization {
+  uuid                         String   @id @default(uuid()) @db.Uuid
   isDeleted                    Boolean  @map("is_deleted")
   tsCreated                    DateTime @default(now()) @map("ts_created")
   updatedAt                    DateTime @updatedAt @map("updated_at")
@@ -198,6 +199,7 @@ model RincArticle {
 }
 
 model Author {
+  uuid                       String    @id @default(uuid()) @db.Uuid
   lastName                   String    @map("last_name")
   lastNameFrom               String?   @map("last_name_from")
   firstName                  String?   @map("first_name")
@@ -287,6 +289,7 @@ model Author {
 }
 
 model Journal {
+  uuid                       String   @id @default(uuid()) @db.Uuid
   isDeleted                  Boolean  @default(false) @map("is_deleted")
   tsCreated                  DateTime @default(now()) @map("ts_created")
   titleMain                  String   @map("title_main")

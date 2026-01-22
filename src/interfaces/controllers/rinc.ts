@@ -6,7 +6,7 @@ export class RincController {
 
   public async processZip(
     request: FastifyRequest<{
-      Body: Record<string, any>;
+      Body: Record<string, unknown>;
     }>,
     reply: FastifyReply,
   ) {

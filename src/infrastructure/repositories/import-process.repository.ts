@@ -63,7 +63,7 @@ export class ImportProcessRepository implements IImportProcessRepository {
     await this.prisma.importProcess.update({
       where: { uuid },
       data: {
-        status: 'COMPLETED',
+        status: ImportStatus.COMPLETED,
         completedAt: new Date(),
       },
     });
@@ -73,7 +73,7 @@ export class ImportProcessRepository implements IImportProcessRepository {
     await this.prisma.importProcess.update({
       where: { uuid },
       data: {
-        status: 'FAILED',
+        status: ImportStatus.FAILED,
         errorMessage: error,
         completedAt: new Date(),
       },

@@ -1,5 +1,7 @@
-export interface IJournalRepository {
-  findByRincId(rincId: string): Promise<any | null>;
+import { Journal } from '@/generated/prisma/client';
 
-  findByIssn(issn: string): Promise<any | null>;
+export interface IJournalRepository {
+  findByRincId(rincId: string): Promise<Journal | null>;
+
+  findByIssn(issn: string): Promise<Journal | null>;
 }

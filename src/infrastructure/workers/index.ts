@@ -2,7 +2,7 @@ import fp from 'fastify-plugin';
 import { ImportWorker } from './import-worker';
 
 const workersPlugin = fp(async (app) => {
-  const importWorker = new ImportWorker(app.queues.redisConnection, app.useCases);
+  const importWorker = new ImportWorker(app.queues.redisConnection, app.useCases, app.log);
 
   app.decorate('workers', {
     import: importWorker,

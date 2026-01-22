@@ -10,6 +10,8 @@ import type { IImportProcessRepository } from '@/domain/repositories';
 import { mkdir, unlink } from 'fs/promises';
 import { type EventBus, ImportProcessStartedEvent } from '../events';
 import { ImportProcess } from '@/domain/domains';
+import { IAppConfig } from '@/infrastructure/plugins/config/env';
+import { ImportStatus } from '@/generated/prisma/enums';
 
 export interface ImportRincZipInput {
   file: MultipartFile;
@@ -25,10 +27,11 @@ export class ImportRincZipUseCase {
     private readonly importProcessRepository: IImportProcessRepository,
     private readonly fileValidator: FileValidator,
     private readonly eventBus: EventBus,
+    private readonly config: IAppConfig,
   ) {}
 
   async ensureDirExists(basePath: string) {
-    const tempDir = join(basePath, 'uploads', 'rinc', 'temp');
+    const tempDir = join(basePath, this.config.UPLOADS_DIR);
     await mkdir(tempDir, {
       recursive: true,
     });
@@ -65,7 +68,7 @@ export class ImportRincZipUseCase {
     }
 
     // Extract zip file and remove tmp file
-    const extractDir = join(basePath, 'uploads', 'rinc', timestamp);
+    const extractDir = join(basePath, this.config.EXTRACT_DIR, timestamp);
 
     const zip = new AdmZip(zipPath);
     zip.extractAllTo(extractDir, true);
@@ -76,7 +79,7 @@ export class ImportRincZipUseCase {
     // Create ImportProcess entity
     const importProcessRecord = await this.importProcessRepository.create({
       filename: input.file.filename,
-      status: 'PENDING',
+      status: ImportStatus.PENDING,
       filesPath: extractDir,
     });
     const importProcess = new ImportProcess(importProcessRecord);

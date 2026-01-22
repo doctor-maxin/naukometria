@@ -1,10 +1,10 @@
 import type { IJournalRepository } from '@/domain/repositories';
-import { PrismaClient } from '@/generated/prisma/client';
+import { PrismaClient, Journal } from '@/generated/prisma/client';
 
 export class JournalRepository implements IJournalRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
-  public async findByRincId(rincId: string): Promise<any | null> {
+  public async findByRincId(rincId: string): Promise<Journal | null> {
     return this.prisma.journal.findFirst({
       where: {
         rinc: rincId,
@@ -12,7 +12,7 @@ export class JournalRepository implements IJournalRepository {
     });
   }
 
-  public async findByIssn(issn: string): Promise<any | null> {
+  public async findByIssn(issn: string): Promise<Journal | null> {
     return this.prisma.journal.findFirst({
       where: {
         issn: issn,

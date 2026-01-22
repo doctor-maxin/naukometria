@@ -23,5 +23,13 @@ export const envSchema = {
       type: 'number',
       default: 6379,
     },
+    UPLOADS_DIR: {
+      type: 'string',
+      default: 'uploads/rinc/temp',
+    },
+    EXTRACT_DIR: {
+      type: 'string',
+      default: 'uploads/rinc',
+    },
   },
 } satisfies FastifyEnvOptions['schema'];

@@ -12,6 +12,7 @@ const useCasesPlugin = fp(async (app) => {
     app.repositories.importProcess,
     app.fileValidator,
     app.eventBus,
+    app.config,
   );
 
   const processImportFiles = new ProcessImportFilesUseCase(
@@ -23,6 +24,7 @@ const useCasesPlugin = fp(async (app) => {
     app.repositories.author,
     app.repositories.organization,
     app.repositories.journal,
+    app.log,
   );
 
   const retrieveProcessImport = new RetrieveProcessImportUseCase(app.repositories.importProcess);

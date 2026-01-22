@@ -1,11 +1,11 @@
 import fp from 'fastify-plugin';
-import { Queue, Worker } from 'bullmq';
+import { Queue } from 'bullmq';
 import IORedis from 'ioredis';
 
 const queuesPlugin = fp(async (app) => {
   const connection = new IORedis({
-    host: app.config.REDIS_HOST || 'localhost',
-    port: parseInt(app.config.REDIS_PORT || '6379'),
+    host: app.config.REDIS_HOST,
+    port: app.config.REDIS_PORT,
     maxRetriesPerRequest: null,
   });
 

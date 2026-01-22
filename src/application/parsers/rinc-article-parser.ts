@@ -13,9 +13,9 @@ export class RincArticleParser {
     const data = json.response as IItemContent;
 
     // Extract DOI from codes
-    const doi = data.codes?.find((c: any) => c.type === 'DOI')?.value;
-    const udk = data.codes?.find((c: any) => c.type === 'УДК')?.value;
-    const edn = data.codes?.find((c: any) => c.type === 'EDN')?.value;
+    const doi = data.codes?.find((c) => c.type === 'DOI')?.value;
+    const udk = data.codes?.find((c) => c.type === 'УДК')?.value;
+    const edn = data.codes?.find((c) => c.type === 'EDN')?.value;
 
     return new Article(data.itemId, data, doi, udk, edn);
   }
@@ -30,7 +30,7 @@ export class RincArticleParser {
   }
 }
 
-export interface IItemContent {
+export interface IItemContent extends Record<string, unknown> {
   itemId: number;
   code: string;
   genreId: number;

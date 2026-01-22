@@ -286,4 +286,8 @@ export class Publication {
   static fromPrisma(prismaModel: PrismaPublication) {
     return new Publication(prismaModel);
   }
+
+  toObject() {
+    return this.prismaModel;
+  }
 }

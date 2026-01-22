@@ -1,6 +1,7 @@
 import { Worker, Job } from 'bullmq';
 import IORedis from 'ioredis';
 import { ProcessImportFilesUseCase } from '@/application/use-cases/process-import-files.use-case';
+import { FastifyBaseLogger } from 'fastify';
 
 export class ImportWorker {
   private worker: Worker;
@@ -10,24 +11,25 @@ export class ImportWorker {
     private useCases: {
       processImportFiles: ProcessImportFilesUseCase;
     },
+    private logger: FastifyBaseLogger,
   ) {
     this.worker = new Worker('import-queue', this.processJob.bind(this), {
       connection: this.redisConnection,
     });
 
     this.worker.on('completed', (job: Job) => {
-      console.log(`Job ${job.id} completed`);
+      this.logger.info(`Job ${job.id} completed`);
     });
 
     this.worker.on('failed', (job: Job | undefined, error: Error) => {
-      console.error(`Job ${job?.id} failed:`, error);
+      this.logger.error(error, `Job ${job?.id} failed:`);
     });
   }
 
   private async processJob(job: Job) {
     const eventType = job.data.type;
 
-    console.log(`Received event: ${eventType}`);
+    this.logger.info(`Received event: ${eventType}`);
 
     switch (eventType) {
       case 'ImportProcessStarted':
@@ -35,7 +37,7 @@ export class ImportWorker {
         break;
 
       default:
-        console.warn(`Unknown event type: ${eventType}`);
+        this.logger.warn(`Unknown event type: ${eventType}`);
     }
   }
 

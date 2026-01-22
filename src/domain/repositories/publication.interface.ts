@@ -1,5 +1,6 @@
 import type { Publication as PrismaPublication, RincArticle } from '@/generated/prisma/client';
 import { Publication } from '../domains';
+import { IItemContent } from '@/application/parsers/rinc-article-parser';
 
 export interface IPublicationRepository {
   findByRincId(rincId: string): Promise<PrismaPublication | null>;
@@ -15,7 +16,7 @@ export interface IPublicationRepository {
   createRincArticle(
     publicationUuid: string,
     createRincArticle: string,
-    rawData: any,
+    rawData: IItemContent,
   ): Promise<RincArticle>;
 
   findById(id: string): Promise<PrismaPublication | null>;
